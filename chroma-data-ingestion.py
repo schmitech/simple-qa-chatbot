@@ -5,6 +5,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from tqdm import tqdm
 import chromadb
 from dotenv import load_dotenv
+import argparse
 
 def ingest_to_chroma(
     json_file_path: str,
@@ -53,10 +54,6 @@ def ingest_to_chroma(
     )
     
     # Process in batches
-    all_ids = []
-    all_embeddings = []
-    all_metadatas = []
-    
     for i in tqdm(range(0, len(qa_pairs), batch_size), desc="Processing Q&A pairs"):
         batch = qa_pairs[i:i + batch_size]
         
@@ -80,7 +77,7 @@ def ingest_to_chroma(
                         "question": qa["question"],
                         "answer": qa["answer"],
                         "chunk_index": str(chunk_idx),
-                        "source": "municipal-qa"
+                        "source": collection_name
                     })
                     
                 except Exception as e:
@@ -104,6 +101,11 @@ def ingest_to_chroma(
     print(f"Total vectors in collection: {collection.count()}")
 
 if __name__ == "__main__":
+    # Set up argument parser
+    parser = argparse.ArgumentParser(description='Ingest Q&A pairs into Chroma database')
+    parser.add_argument('json_file_path', help='Path to the JSON file containing Q&A pairs')
+    args = parser.parse_args()
+
     # Debug: Print the .env file path and contents
     env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
     print(f"Looking for .env file at: {env_path}")
@@ -132,7 +134,7 @@ if __name__ == "__main__":
     # Updated configuration
     CONFIG = {
         "ollama_base_url": ollama_base_url,
-        "json_file_path": "qa_pairs.json",
+        "json_file_path": args.json_file_path,
         "batch_size": 50,
         "persist_directory": os.getenv("CHROMA_PERSIST_DIRECTORY")
     }
