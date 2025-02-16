@@ -8,6 +8,8 @@ import { streamChat } from './api';
 function App() {
   const { messages, isLoading, voiceEnabled, addMessage, setIsLoading, appendToLastMessage } = useChatStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const audioQueue = useRef<string[]>([]);
+  const currentAudio = useRef<HTMLAudioElement | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -17,22 +19,27 @@ function App() {
     scrollToBottom();
   }, [messages]);
 
-  const audioQueue: string[] = [];
-  let currentAudio: HTMLAudioElement | null = null;
-
-  const playAudioChunk = (base64: string, isFinal?: boolean) => {
-    const audio = new Audio(`data:audio/mpeg;base64,${base64}`);
-    audioQueue.push(audio.src);
-    
-    if (!currentAudio) {
-      currentAudio = audio;
-      currentAudio.play();
+  const playNextAudio = () => {
+    if (audioQueue.current.length > 0 && !currentAudio.current) {
+      const audio = new Audio(audioQueue.current[0]);
+      currentAudio.current = audio;
       
-      currentAudio.onended = () => {
-        audioQueue.shift();
-        currentAudio = audioQueue.length > 0 ? new Audio(audioQueue[0]) : null;
-        if (currentAudio) currentAudio.play();
+      audio.onended = () => {
+        audioQueue.current.shift();
+        currentAudio.current = null;
+        playNextAudio();
       };
+      
+      audio.play().catch(console.error);
+    }
+  };
+
+  const playAudioChunk = (base64: string) => {
+    const audioUrl = `data:audio/mpeg;base64,${base64}`;
+    audioQueue.current.push(audioUrl);
+    
+    if (!currentAudio.current) {
+      playNextAudio();
     }
   };
 

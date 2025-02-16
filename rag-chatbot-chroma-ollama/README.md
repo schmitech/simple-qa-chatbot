@@ -14,8 +14,8 @@ A conversational AI assistant, featuring text-to-speech capabilities.
 
 1. Clone the repository
 ```bash
-git clone [repository-url]
-cd [repository-name]
+git clone https://github.com/schmitech/simple-qa-chatbot.git
+cd simple-qa-chatbot
 ```
 
 2. Install dependencies

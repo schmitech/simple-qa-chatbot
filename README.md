@@ -135,7 +135,7 @@ streamlit run chatbot_app_chroma.py
 
 1. Adjust  `.streamlit/secrets.toml` to your needs:
 ```toml
-PAGE_TITLE = "Q/A Chatbot"
+PAGE_TITLE = "City of Ottawa Assistant"
 OLLAMA_BASE_URL = "http://localhost:11434"
 OLLAMA_TEMPERATURE = 0.1
 OLLAMA_MODEL = "qa-chatbot"

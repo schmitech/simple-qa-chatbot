@@ -6,12 +6,11 @@ import { Ollama } from '@langchain/community/llms/ollama';
 import { RunnableSequence } from '@langchain/core/runnables';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { ChromaRetriever } from './chromaRetriever';
-import ElevenLabs from 'elevenlabs-node';
 import { Document } from '@langchain/core/documents';
 import { PromptTemplate } from "@langchain/core/prompts";
 import { OllamaEmbeddings } from '@langchain/community/embeddings/ollama';
 import { OllamaEmbeddingWrapper } from './ollamaEmbeddingWrapper';
-import fs from 'fs';
+// import fs from 'fs';
 
 dotenv.config();
 
@@ -26,18 +25,14 @@ const client = new ChromaClient({
   path: 'http://localhost:8000'
 });
 
-// Initialize Ollama
+// Initialize Ollama with more aggressive optimization
 const llm = new Ollama({
   baseUrl: process.env.OLLAMA_BASE_URL,
   model: process.env.OLLAMA_MODEL || 'llama2',
-  temperature: 0.2,
+  temperature: 0.1,  // Reduced for faster responses
   numCtx: 2048,
-  numPredict: 100,
-});
-
-// Initialize Eleven Labs with streaming support
-const voice = new ElevenLabs({
-  apiKey: process.env.ELEVEN_LABS_API_KEY || '',
+  numPredict: 50,   // Reduced to speed up generation
+  numThread: 8,
 });
 
 // Initialize Ollama embeddings instead of OpenAI
@@ -117,65 +112,50 @@ app.post('/chat', async (req, res) => {
 
   try {
     let textBuffer = '';
-    let audioBuffer = '';  // Buffer for audio generation
+    let isFirstChunk = true;
     
-    // Stream text response
     const stream = await chain.stream({ query: message });
     
     for await (const chunk of stream) {
       if (chunk) {
         textBuffer += chunk;
-        audioBuffer += chunk;
         res.write(JSON.stringify({ type: 'text', content: chunk }) + '\n');
 
-        // Only generate audio when we have a substantial chunk (e.g., after punctuation)
-        if (voiceEnabled && (chunk.includes('.') || chunk.includes('!') || chunk.includes('?'))) {
+        // For first chunk, wait for a decent amount of text
+        if (voiceEnabled && isFirstChunk && textBuffer.length >= 50) {
+          const currentText = textBuffer;
+          textBuffer = '';
+          isFirstChunk = false;
+
           try {
-            const fileName = `chunk-${Date.now()}.mp3`;
-            await voice.textToSpeech({
-              textInput: audioBuffer,
-              voiceId: process.env.ELEVEN_LABS_VOICE_ID || 'XrExE9yKIg1WjnnlVkGX',
-              modelId: "eleven_flash_v2_5",
-              fileName: fileName
-            });
+            await generateAudioChunk(currentText, res);
+          } catch (error) {
+            console.error('First chunk audio generation failed:', error);
+          }
+        }
+        // For subsequent chunks, wait for complete sentences
+        else if (voiceEnabled && !isFirstChunk && (
+          textBuffer.match(/[.!?]\s*$/) ||
+          textBuffer.length >= 100
+        )) {
+          const currentText = textBuffer;
+          textBuffer = '';
 
-            // Read and send the audio file
-            const audioData = fs.readFileSync(fileName);
-            const base64Audio = audioData.toString('base64');
-            fs.unlinkSync(fileName);  // Clean up the file
-
-            res.write(JSON.stringify({
-              type: 'audio',
-              content: base64Audio,  // Send the audio data, not the text
-              isFinal: false
-            }) + '\n');
-
-            audioBuffer = '';
-          } catch (audioError) {
-            console.error('Audio generation failed:', audioError);
+          try {
+            await generateAudioChunk(currentText, res);
+          } catch (error) {
+            console.error('Audio generation failed:', error);
           }
         }
       }
     }
     
-    // Generate final audio for any remaining text
-    if (voiceEnabled && audioBuffer) {
+    // Handle any remaining text
+    if (voiceEnabled && textBuffer.trim()) {
       try {
-        const fileName = `chunk-${Date.now()}.mp3`;
-        await voice.textToSpeech({
-          textInput: audioBuffer,
-          voiceId: process.env.ELEVEN_LABS_VOICE_ID || 'XrExE9yKIg1WjnnlVkGX',
-          modelId: "eleven_flash_v2_5",
-          fileName: fileName
-        });
-
-        res.write(JSON.stringify({ 
-          type: 'audio', 
-          content: audioBuffer,
-          isFinal: true 
-        }) + '\n');
-      } catch (audioError) {
-        console.error('Audio generation failed:', audioError);
+        await generateAudioChunk(textBuffer.trim(), res, true);
+      } catch (error) {
+        console.error('Final chunk audio generation failed:', error);
       }
     }
     
@@ -186,6 +166,48 @@ app.post('/chat', async (req, res) => {
     res.end();
   }
 });
+
+async function generateAudioChunk(text: string, res: any, isFinal: boolean = false) {
+  console.log('Generating audio for:', text); // Debug log
+
+  const response = await fetch(
+    `https://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_LABS_VOICE_ID}/stream`,
+    {
+      method: 'POST',
+      headers: {
+        'Accept': 'audio/mpeg',
+        'Content-Type': 'application/json',
+        'xi-api-key': process.env.ELEVEN_LABS_API_KEY || '',
+      },
+      body: JSON.stringify({
+        text,
+        model_id: 'eleven_multilingual_v1',
+        voice_settings: {
+          stability: 0.35,
+          similarity_boost: 0.75,
+          speaking_rate: 1.15,
+          style: 0.35,
+        },
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Audio generation failed: ${response.status} ${response.statusText}`);
+  }
+    
+  const audioBuffer = await response.arrayBuffer();
+  const base64Audio = Buffer.from(audioBuffer).toString('base64');
+    
+  // Debug log
+  console.log('Audio generated successfully, length:', base64Audio.length);
+
+  res.write(JSON.stringify({
+    type: 'audio',
+    content: base64Audio,
+    isFinal,
+  }) + '\n');
+}
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
