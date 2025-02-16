@@ -121,26 +121,30 @@ app.post('/chat', async (req, res) => {
         textBuffer += chunk;
         res.write(JSON.stringify({ type: 'text', content: chunk }) + '\n');
 
-        // For first chunk, wait for a decent amount of text
-        if (voiceEnabled && isFirstChunk && textBuffer.length >= 50) {
+        // Wait for first substantial chunk
+        if (voiceEnabled && isFirstChunk && textBuffer.length >= 100) {
           const currentText = textBuffer;
           textBuffer = '';
           isFirstChunk = false;
 
+          // Add delay before starting audio
+          await new Promise(resolve => setTimeout(resolve, 1000));
           try {
             await generateAudioChunk(currentText, res);
           } catch (error) {
             console.error('First chunk audio generation failed:', error);
           }
         }
-        // For subsequent chunks, wait for complete sentences
+        // For subsequent chunks, wait for complete sentences and add delay
         else if (voiceEnabled && !isFirstChunk && (
-          textBuffer.match(/[.!?]\s*$/) ||
-          textBuffer.length >= 100
+          (textBuffer.match(/[.!?]\s*$/) && textBuffer.length >= 50) ||
+          textBuffer.length >= 150
         )) {
           const currentText = textBuffer;
           textBuffer = '';
 
+          // Add delay between chunks
+          await new Promise(resolve => setTimeout(resolve, 800));
           try {
             await generateAudioChunk(currentText, res);
           } catch (error) {
@@ -152,6 +156,7 @@ app.post('/chat', async (req, res) => {
     
     // Handle any remaining text
     if (voiceEnabled && textBuffer.trim()) {
+      await new Promise(resolve => setTimeout(resolve, 800));
       try {
         await generateAudioChunk(textBuffer.trim(), res, true);
       } catch (error) {
@@ -168,7 +173,7 @@ app.post('/chat', async (req, res) => {
 });
 
 async function generateAudioChunk(text: string, res: any, isFinal: boolean = false) {
-  console.log('Generating audio for:', text); // Debug log
+  console.log('Generating audio for:', text);
 
   const response = await fetch(
     `https://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_LABS_VOICE_ID}/stream`,
@@ -183,10 +188,10 @@ async function generateAudioChunk(text: string, res: any, isFinal: boolean = fal
         text,
         model_id: 'eleven_multilingual_v1',
         voice_settings: {
-          stability: 0.35,
-          similarity_boost: 0.75,
-          speaking_rate: 1.15,
-          style: 0.35,
+          stability: 0.7,              // Increased for more stable speech
+          similarity_boost: 0.8,       // Increased for better voice consistency
+          speaking_rate: 1.0,          // Normal speaking rate
+          style: 0.25,                 // Reduced for more natural delivery
         },
       }),
     }
@@ -199,7 +204,6 @@ async function generateAudioChunk(text: string, res: any, isFinal: boolean = fal
   const audioBuffer = await response.arrayBuffer();
   const base64Audio = Buffer.from(audioBuffer).toString('base64');
     
-  // Debug log
   console.log('Audio generated successfully, length:', base64Audio.length);
 
   res.write(JSON.stringify({

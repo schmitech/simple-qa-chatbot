@@ -31,10 +31,22 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
 
       recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
-        setInput(transcript);
+        let processedText = transcript;
+        
+        // Add question mark if it's likely a question but doesn't end with one
+        const questionWords = ['what', 'when', 'where', 'who', 'why', 'how', 'can', 'could', 'would', 'should', 'do', 'does', 'is', 'are'];
+        const startsWithQuestionWord = questionWords.some(word => 
+          transcript.toLowerCase().trim().startsWith(word)
+        );
+        
+        if (startsWithQuestionWord && !transcript.trim().endsWith('?')) {
+          processedText = transcript.trim() + '?';
+        }
+
+        setInput(processedText);
         // Automatically send message after recording
-        if (transcript.trim()) {
-          onSendMessage(transcript.trim());
+        if (processedText.trim()) {
+          onSendMessage(processedText.trim());
           setInput('');
         }
         setIsRecording(false);

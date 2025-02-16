@@ -118,8 +118,12 @@ CHROMA_COLLECTION="qa-chatbot"
 python chroma-data-ingestion.py qa_pairs.json
 ```
 
-## Test Query
+2. Start the ChromaDB server:
+```bash
+chroma run --host localhost --port 8000 --path ./chroma_db
+```
 
+3. Test Query
 ```bash
 python query_chroma.py "How much is the property tax for a house?"
 ```
