@@ -24,7 +24,7 @@ Dependencies:
 Required Configuration:
 
 Create a .streamlit/secrets.toml file with the following variables:
-    CHROMA_PERSIST_DIRECTORY = "./chroma_db"  # Path to ChromaDB storage
+    CHROMA_COLLECTION = "your-collection-name"  # Name of your ChromaDB collection
     OLLAMA_BASE_URL = "http://localhost:11434"  # URL to Ollama server
     OLLAMA_TEMPERATURE = 0.7  # LLM temperature setting
     OLLAMA_MODEL = "your-model-name"  # Name of your Ollama model
@@ -99,8 +99,8 @@ class ChromaRetriever(BaseRetriever):
         return documents or [Document(page_content="I'm sorry, I couldn't find any relevant information.")]
 
 def initialize_rag():
-    # Initialize ChromaDB with path from secrets
-    client = chromadb.PersistentClient(path=st.secrets["CHROMA_PERSIST_DIRECTORY"])
+    # Initialize ChromaDB with HTTP client instead of persistent storage
+    client = chromadb.HttpClient(host="localhost", port=8000)
     
     # Initialize Ollama
     embeddings = OllamaEmbeddings(

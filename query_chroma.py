@@ -4,9 +4,9 @@ from langchain_ollama import OllamaEmbeddings
 import chromadb
 from dotenv import load_dotenv
 
-def test_chroma_ingestion(ollama_base_url: str, test_query: str, persist_directory: str = "./chroma_db"):
-    # Initialize client
-    client = chromadb.PersistentClient(path=persist_directory)
+def test_chroma_ingestion(ollama_base_url: str, test_query: str):
+    # Initialize client with HTTP connection instead of persistent storage
+    client = chromadb.HttpClient(host="localhost", port=8000)
     
     # Get the collection
     collection_name = os.getenv("CHROMA_COLLECTION")
