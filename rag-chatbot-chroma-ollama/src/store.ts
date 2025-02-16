@@ -21,4 +21,5 @@ export const useChatStore = create<ChatStore>((set) => ({
       }
       return { messages };
     }),
+  clearMessages: () => set({ messages: [] }),
 }));

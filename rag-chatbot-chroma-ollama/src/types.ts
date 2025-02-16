@@ -11,6 +11,7 @@ export interface ChatStore {
   setVoiceEnabled: (enabled: boolean) => void;
   setIsLoading: (loading: boolean) => void;
   appendToLastMessage: (content: string) => void;
+  clearMessages: () => void;
 }
 
 export interface StreamResponse {

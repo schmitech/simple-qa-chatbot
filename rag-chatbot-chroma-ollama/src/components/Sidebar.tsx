@@ -1,9 +1,9 @@
 import React from 'react';
-import { Settings, Mic } from 'lucide-react';
+import { Settings, Mic, Trash2 } from 'lucide-react';
 import { useChatStore } from '../store';
 
 export const Sidebar: React.FC = () => {
-  const { voiceEnabled, setVoiceEnabled } = useChatStore();
+  const { voiceEnabled, setVoiceEnabled, clearMessages, messages } = useChatStore();
 
   return (
     <div className="w-64 border-r bg-gray-50 p-6">
@@ -13,11 +13,9 @@ export const Sidebar: React.FC = () => {
       </div>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Mic size={20} className="text-gray-600" />
-            <span className="text-base font-medium text-gray-900 whitespace-nowrap">
-              Voice Responses
-            </span>
+          <div className="flex items-center gap-3">
+            <Mic size={20} className="text-gray-600 shrink-0" />
+            <span className="text-base font-medium text-gray-900">Voice Responses</span>
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
             <input
@@ -44,6 +42,15 @@ export const Sidebar: React.FC = () => {
             />
           </label>
         </div>
+        
+        <button
+          onClick={clearMessages}
+          disabled={messages.length === 0}
+          className="flex items-center gap-3 w-full px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+        >
+          <Trash2 size={20} />
+          <span className="font-medium">Clear Chat</span>
+        </button>
       </div>
     </div>
   );
