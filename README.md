@@ -6,9 +6,9 @@ This project creates an AI-powered assistant using Ollama and Chroma.
 
 The RAG pipeline uses:
 
-- Pinecone for vector storage
-- Ollama's Llama3.2 model for generation
-- Nomic embeddings for retrieval
+- ChromaDB for vector storage
+- Ollama for model serving
+- Nomic embeddings (nomic-embed-text) for retrieval
 
 ## Features
 
@@ -74,7 +74,7 @@ Here are the key advantages of the chatbot compared to traditional search method
 1. Clone the repository:
 ```bash
 git clone https://github.com/schmitech/simple-qa-chatbot.git
-cd city-ottawa-rag-assistant
+cd simple-qa-chatbot
 ```
 
 2. Install required packages:
@@ -95,6 +95,16 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+1. Create a `.env` file for ingestion scripts (copy from .env.example):
+```env
+OLLAMA_HOST=http://localhost:11434
+CHROMA_PERSIST_DIRECTORY="./chroma_db"
+OLLAMA_BASE_URL="http://localhost:11434"
+OLLAMA_TEMPERATURE=0.7
+OLLAMA_MODEL="qa-chatbot"
+CHROMA_COLLECTION="qa-chatbot"
+```
+
 ## Deploy Ollama Model
 
 ```bash
@@ -105,7 +115,13 @@ pip install -r requirements.txt
 
 1. Ingest data into Pinecone (requires .env configuration):
 ```bash
-python chroma-data-ingestion.py
+python chroma-data-ingestion.py qa_pairs.json
+```
+
+## Test Query
+
+```bash
+python query_chroma.py "How much is the property tax for a house?"
 ```
 
 ## Running the Chat Interface
@@ -117,27 +133,17 @@ streamlit run chatbot_app_chroma.py
 
 ## Configuration
 
-1. Create a `.streamlit/secrets.toml` file with:
+1. Adjust  `.streamlit/secrets.toml` to your needs:
 ```toml
-[secrets]
-PINECONE_API_KEY = "your_pinecone_key"
-OLLAMA_BASE_URL = "http://your-ollama-host:11434"
-PINECONE_INDEX = "municipal-qa"
+PAGE_TITLE = "Q/A Chatbot"
+OLLAMA_BASE_URL = "http://localhost:11434"
+OLLAMA_TEMPERATURE = 0.1
+OLLAMA_MODEL = "qa-chatbot"
+CHROMA_PERSIST_DIRECTORY = "./chroma_db"
+CHROMA_COLLECTION = "qa-chatbot"
+ELEVEN_LABS_API_KEY = "your-elevenlabs-api-key" # Only needed for text-to-speech support
+ELEVEN_LABS_VOICE_ID = "your-elevenlabs-voice-id" # Only needed for text-to-speech support
 ```
-
-2. Create a `.env` file for ingestion scripts:
-```env
-PINECONE_API_KEY=your_pinecone_key
-OLLAMA_HOST=http://your-ollama-host:11434
-PINECONE_HOST=controller.us-east1-gcp.pinecone.io
-```
-
-## Query Execution Flow
-1. User question is embedded using Nomic-embed-text
-2. Pinecone performs vector similarity search
-3. Top 3 relevant context chunks are retrieved
-4. phi4 model generates answer using context
-5. Response includes source references
 
 ## Key Components
 - `chroma-data-ingestion.py`: Handles vector embedding and storage
@@ -154,17 +160,12 @@ PINECONE_HOST=controller.us-east1-gcp.pinecone.io
 ## Troubleshooting
 
 Common RAG issues:
-1. Missing Pinecone credentials:
+1. ChromaDB connection issues:
    - Verify secrets.toml configuration
    - Check environment variables
-   - Ensure proper Pinecone index configuration
+   - Ensure proper collection configuration
 
-2. Conversion issues:
-   - Ensure all dependencies are installed
-   - Check available disk space
-   - Verify model files are complete
-
-3. Ollama integration:
+2. Ollama integration:
    - Verify Ollama is running
    - Check Modelfile syntax
    - Ensure base model is downloaded
