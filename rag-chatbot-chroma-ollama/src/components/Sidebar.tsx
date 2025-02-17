@@ -1,9 +1,17 @@
 import React from 'react';
-import { Settings, Mic, Trash2 } from 'lucide-react';
+import { Settings, Mic, Trash2, Languages } from 'lucide-react';
 import { useChatStore } from '../store';
 
 export const Sidebar: React.FC = () => {
-  const { voiceEnabled, setVoiceEnabled, clearMessages, messages } = useChatStore();
+  const { 
+    voiceEnabled, 
+    setVoiceEnabled, 
+    clearMessages, 
+    messages,
+    language,
+    setLanguage,
+    supportedLanguages
+  } = useChatStore();
 
   return (
     <div className="w-64 border-r bg-gray-50 p-6">
@@ -12,6 +20,23 @@ export const Sidebar: React.FC = () => {
         <h2 className="text-xl font-semibold">Settings</h2>
       </div>
       <div className="space-y-6">
+        <div className="space-y-2">
+          <div className="flex items-center gap-3 text-gray-600">
+            <Languages size={20} className="shrink-0" />
+            <span className="text-base font-medium text-gray-900">Language</span>
+          </div>
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {supportedLanguages.map((lang) => (
+              <option key={lang.value} value={lang.value}>
+                {lang.label}
+              </option>
+            ))}
+          </select>
+        </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Mic size={20} className="text-gray-600 shrink-0" />

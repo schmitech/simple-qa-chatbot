@@ -29,9 +29,9 @@ const client = new ChromaClient({
 const llm = new Ollama({
   baseUrl: process.env.OLLAMA_BASE_URL,
   model: process.env.OLLAMA_MODEL || 'llama2',
-  temperature: 0.1,  // Reduced for faster responses
+  temperature: process.env.OLLAMA_TEMPERATURE ? parseFloat(process.env.OLLAMA_TEMPERATURE) : 0.1,
   numCtx: 2048,
-  numPredict: 50,   // Reduced to speed up generation
+  numPredict: 150,
   numThread: 8,
 });
 

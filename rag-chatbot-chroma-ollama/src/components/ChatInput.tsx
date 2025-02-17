@@ -13,6 +13,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
   const inputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const isLoading = useChatStore(state => state.isLoading);
+  const language = useChatStore(state => state.language);
 
   useEffect(() => {
     if (!isLoading && inputRef.current) {
@@ -27,7 +28,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = false;
-      recognition.lang = 'en-US';
+      recognition.lang = `${language}-${language.toUpperCase()}`;
 
       recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
@@ -69,7 +70,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
         recognitionRef.current.abort();
       }
     };
-  }, [onSendMessage]);
+  }, [onSendMessage, language]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,7 +102,11 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
         type="text"
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder="Ask a question about municipal services..."
+        placeholder={
+          language === 'fr' ? 'Poser une question sur les services municipaux...' :
+          language === 'es' ? 'Haga una pregunta sobre servicios municipales...' :
+          'Ask a question about municipal services...'
+        }
         className="flex-1 p-3 text-lg border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         disabled={disabled || isRecording}
       />

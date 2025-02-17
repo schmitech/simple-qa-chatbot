@@ -1,10 +1,31 @@
 import { create } from 'zustand';
 import { ChatStore, Message } from './types';
 
-export const useChatStore = create<ChatStore>((set) => ({
+interface ChatState {
+  messages: Message[];
+  voiceEnabled: boolean;
+  isLoading: boolean;
+  language: string;
+  setLanguage: (language: string) => void;
+  supportedLanguages: Array<{ value: string; label: string }>;
+  addMessage: (message: Message) => void;
+  setVoiceEnabled: (enabled: boolean) => void;
+  setIsLoading: (loading: boolean) => void;
+  appendToLastMessage: (content: string) => void;
+  clearMessages: () => void;
+}
+
+export const useChatStore = create<ChatState>((set) => ({
   messages: [],
   voiceEnabled: false,
   isLoading: false,
+  language: 'en',
+  setLanguage: (language) => set({ language }),
+  supportedLanguages: [
+    { value: 'en', label: 'English' },
+    { value: 'fr', label: 'Français' },
+    { value: 'es', label: 'Español' }
+  ],
   addMessage: (message: Message) =>
     set((state) => ({ messages: [...state.messages, message] })),
   setVoiceEnabled: (enabled: boolean) => set({ voiceEnabled: enabled }),
