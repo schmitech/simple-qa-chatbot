@@ -31,14 +31,9 @@ Here are the key advantages of the chatbot compared to traditional search method
    - Eliminates the need to navigate multiple links
 
 3. **Consistency and Accuracy**
-   - Always pulls from official city data
+   - Pulls from official data sources
    - Provides up-to-date information
    - Standardized responses for common questions
-
-4. **24/7 Accessibility**
-   - Available anytime
-   - No wait times for basic information
-   - Reduces load on phone lines and staff
 
 
 ### Future Potential:
@@ -139,7 +134,7 @@ streamlit run chatbot_app_chroma.py
 
 1. Adjust  `.streamlit/secrets.toml` to your needs:
 ```toml
-PAGE_TITLE = "City of Ottawa Assistant"
+PAGE_TITLE = "Q/A Assistant"
 OLLAMA_BASE_URL = "http://localhost:11434"
 OLLAMA_TEMPERATURE = 0.1
 OLLAMA_MODEL = "qa-chatbot"
@@ -151,28 +146,48 @@ ELEVEN_LABS_VOICE_ID = "your-elevenlabs-voice-id" # Only needed for text-to-spee
 
 ## Key Components
 - `chroma-data-ingestion.py`: Handles vector embedding and storage
-- `chatbot_app_chroma.py`: Web interface for citizen interactions
+- `chatbot_app_chroma.py`: Web interface for seamless interactions
 - `qa_pairs.json`: Sample dataset of Q/A pairs
 ```
 
 ## Limitations
 
 - Limited to trained topics
-- Requires Ollama to be installed
 - Response time varies based on hardware
 
 ## Troubleshooting
 
-Common RAG issues:
+Common issues and solutions:
+
 1. ChromaDB connection issues:
-   - Verify secrets.toml configuration
-   - Check environment variables
-   - Ensure proper collection configuration
+   - Verify ChromaDB server is running (`chroma run --host localhost --port 8000`)
+   - Check CHROMA_PERSIST_DIRECTORY exists and has correct permissions
+   - Ensure collection name matches CHROMA_COLLECTION in .env
+   - Validate data ingestion completed successfully
 
 2. Ollama integration:
-   - Verify Ollama is running
-   - Check Modelfile syntax
-   - Ensure base model is downloaded
+   - Confirm Ollama is running (`curl http://localhost:11434/api/tags`)
+   - Verify OLLAMA_BASE_URL is accessible
+   - Check if model is properly downloaded (`ollama list`)
+   - Monitor system resources (RAM/CPU) during model loading
+
+3. Data ingestion problems:
+   - Validate JSON format in qa_pairs.json
+   - Check Python environment has all requirements installed
+   - Ensure sufficient disk space for vector storage
+   - Monitor ChromaDB logs for embedding errors
+
+4. Performance issues:
+   - Consider reducing OLLAMA_TEMPERATURE for more focused responses
+   - Verify system meets minimum RAM requirements (16GB)
+   - Check for competing resource-intensive processes
+   - Monitor ChromaDB query latency
+
+5. Environment setup:
+   - Confirm Python version is 3.11 or higher
+   - Verify all environment variables are properly set
+   - Check virtual environment is activated
+   - Validate all dependencies in requirements.txt are installed
 
 ## License
 

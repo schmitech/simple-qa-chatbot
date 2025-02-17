@@ -1,4 +1,4 @@
-# Ottawa Chatbot
+# AI Q/A Chatbot
 
 A conversational AI assistant, featuring text-to-speech capabilities.
 
