@@ -14,51 +14,13 @@ The RAG pipeline uses:
 
 ## Features
 
-- Fine-tuned model for specific domain questions
-- Professional response formatting
-
-## Benefits of the Chatbot
-
-Here are the key advantages of the chatbot compared to traditional search methods:
-
-### Immediate Advantages:
 1. **Natural Language Understanding**
    - Users can ask questions in their own words
-   - No need to know exact menu paths or keywords
    - Handles variations in how questions are asked
 
-2. **Direct Answers**
-   - Provides specific information instantly
-   - No need to scan through long pages
-   - Eliminates the need to navigate multiple links
-
-3. **Consistency and Accuracy**
-   - Pulls from official data sources
-   - Provides up-to-date information
-   - Standardized responses for common questions
-
-
-### Future Potential:
-1. **Integration with More Services**
-   - Appointment scheduling
-   - Form submissions
-   - Service status updates
-
-2. **Enhanced Personalization**
-   - Remember user preferences
-   - Provide location-specific information
-   - Customized alerts and reminders
-
-3. **Data-Driven Improvements**
-   - Identify common citizen needs
-   - Highlight areas needing better documentation
-   - Guide service improvements based on usage patterns
-
-4. **Expanded Capabilities**
-   - Real-time service updates
-   - Interactive forms
-   - Payment processing
-   - Multi-channel support (voice, SMS)
+2. **Consistency and Accuracy**
+   - Pulls from trained data sources
+   - Standardized responses for specific questions
 
 ## Prerequisites
 
@@ -125,11 +87,20 @@ chroma run --host localhost --port 8000 --path ./chroma_db
 python query_chroma.py "How much is the property tax for a house?"
 ```
 
-## Running the Chat Interface
+## Running the Streamlit Chat Interface:
 
 1. Start a conversation:
 ```bash
 streamlit run chatbot_app_chroma.py
+```
+
+## Running the React/Vite Interface:
+
+```bash
+cd rag-chatbot-chroma-ollama
+npm install
+npm run server
+npm run dev
 ```
 
 ## Configuration
@@ -150,7 +121,6 @@ ELEVEN_LABS_VOICE_ID = "your-elevenlabs-voice-id" # Only needed for text-to-spee
 - `chroma-data-ingestion.py`: Handles vector embedding and storage
 - `chatbot_app_chroma.py`: Web interface for seamless interactions
 - `qa_pairs.json`: Sample dataset of Q/A pairs
-```
 
 ## Limitations
 
@@ -193,7 +163,7 @@ Common issues and solutions:
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the Apache 2.0 License - see the LICENSE file for details.
 
 ## Acknowledgments
 
