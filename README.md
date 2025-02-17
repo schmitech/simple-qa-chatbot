@@ -10,6 +10,8 @@ The RAG pipeline uses:
 - Ollama for model serving
 - Nomic embeddings (nomic-embed-text) for retrieval
 
+![Architecture Overview](llm-chatbot-architecture.png)
+
 ## Features
 
 - Fine-tuned model for specific domain questions
