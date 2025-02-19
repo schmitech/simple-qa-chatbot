@@ -14,6 +14,20 @@ import { OllamaEmbeddingWrapper } from './ollamaEmbeddingWrapper';
 
 dotenv.config();
 
+// Add this logging block after dotenv.config()
+console.log('Environment Variables:');
+console.log({
+  OLLAMA_BASE_URL: process.env.OLLAMA_BASE_URL,
+  OLLAMA_MODEL: process.env.OLLAMA_MODEL,
+  OLLAMA_EMBED_MODEL: process.env.OLLAMA_EMBED_MODEL,
+  OLLAMA_TEMPERATURE: process.env.OLLAMA_TEMPERATURE,
+  CHROMA_HOST: process.env.CHROMA_HOST,
+  CHROMA_COLLECTION: process.env.CHROMA_COLLECTION,
+  // Masking sensitive data
+  ELEVEN_LABS_API_KEY: process.env.ELEVEN_LABS_API_KEY ? '****' : undefined,
+  ELEVEN_LABS_VOICE_ID: process.env.ELEVEN_LABS_VOICE_ID
+});
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -22,8 +36,8 @@ const port = 3000;
 
 // Initialize ChromaDB with proper configuration
 const client = new ChromaClient({
-  path: 'http://localhost:8000'
-});
+    path: `http://${process.env.CHROMA_HOST}:8000`
+  });
 
 // Initialize Ollama with more aggressive optimization
 const llm = new Ollama({
