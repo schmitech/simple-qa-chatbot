@@ -5,8 +5,15 @@ import chromadb
 from dotenv import load_dotenv
 
 def test_chroma_ingestion(ollama_base_url: str, test_query: str):
+    print(f"\nUsing Ollama server at: {ollama_base_url}")
+    
+    # Get Chroma server details from environment
+    chroma_host = os.getenv("CHROMA_HOST", "localhost")
+    chroma_port = os.getenv("CHROMA_PORT", "8000")
+    print(f"Using Chroma server at: {chroma_host}:{chroma_port}")
+    
     # Initialize client with HTTP connection instead of persistent storage
-    client = chromadb.HttpClient(host="localhost", port=8000)
+    client = chromadb.HttpClient(host=chroma_host, port=int(chroma_port))
     
     # Get the collection
     collection_name = os.getenv("CHROMA_COLLECTION")
@@ -51,8 +58,10 @@ def test_chroma_ingestion(ollama_base_url: str, test_query: str):
         print("No results found")
 
 if __name__ == "__main__":
-    # Load environment variables
-    load_dotenv()
+    # Load environment variables from specific .env file
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    env_path = os.path.join(current_dir, '.env')
+    load_dotenv(dotenv_path=env_path, override=True)  # override=True forces it to override existing env vars
     
     ollama_base_url = os.getenv("OLLAMA_BASE_URL")
     if not ollama_base_url:
