@@ -8,7 +8,7 @@ The RAG pipeline uses:
 
 - ChromaDB for vector storage
 - Ollama for model serving
-- Nomic embeddings (nomic-embed-text) for retrieval
+- Ollama embeddings for retrieval (mxbai-embed-large)
 
 ![Architecture Overview](llm-chatbot-architecture.png)
 
@@ -56,7 +56,6 @@ pip install -r requirements.txt
 
 1. Create a `.env` file for ingestion scripts (copy from .env.example):
 ```env
-OLLAMA_HOST=http://localhost:11434
 CHROMA_PERSIST_DIRECTORY="./chroma_db"
 OLLAMA_BASE_URL="http://localhost:11434"
 OLLAMA_TEMPERATURE=0.7

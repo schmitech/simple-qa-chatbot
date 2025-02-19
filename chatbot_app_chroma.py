@@ -104,7 +104,7 @@ def initialize_rag():
     
     # Initialize Ollama
     embeddings = OllamaEmbeddings(
-        model="nomic-embed-text",
+        model=st.secrets["OLLAMA_EMBED_MODEL"],
         base_url=st.secrets["OLLAMA_BASE_URL"]
     )
     
@@ -181,7 +181,7 @@ try:
             with st.spinner("Thinking 🤔..."):
                 # Show the embedding process
                 embeddings = OllamaEmbeddings(
-                    model="nomic-embed-text",
+                    model=st.secrets["OLLAMA_EMBED_MODEL"],
                     base_url=st.secrets["OLLAMA_BASE_URL"]
                 )
                 

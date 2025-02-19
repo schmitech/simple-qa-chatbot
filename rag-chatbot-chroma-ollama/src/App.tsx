@@ -69,7 +69,7 @@ function App() {
       <Sidebar />
       <div className="flex-1 flex flex-col">
         <header className="border-b p-6">
-          <h1 className="text-3xl font-bold">City of Ottawa Chatbot</h1>
+          <h1 className="text-3xl font-bold">{import.meta.env.VITE_PAGE_TITLE}</h1>
         </header>
         <div className="flex-1 overflow-y-auto">
           {messages.map((message, index) => (

@@ -25,8 +25,12 @@ def ingest_to_chroma(
     collection = client.get_or_create_collection(name=collection_name)
     
     # Initialize Ollama embeddings
+    model = os.getenv("OLLAMA_EMBED_MODEL")
+    if not model:
+        raise ValueError("OLLAMA_EMBED_MODEL environment variable is not set. Please check your .env file.")
+    
     embeddings = OllamaEmbeddings(
-        model="nomic-embed-text",
+        model=model,
         base_url=ollama_base_url,
         client_kwargs={"timeout": 30.0}
     )
@@ -110,20 +114,12 @@ if __name__ == "__main__":
     env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
     print(f"Looking for .env file at: {env_path}")
     print(f"Does .env file exist? {os.path.exists(env_path)}")
-    
-    # Read and print the contents of .env file
-    if os.path.exists(env_path):
-        with open(env_path, 'r') as f:
-            print("Contents of .env file:")
-            for line in f:
-                if line.strip().startswith('OLLAMA_HOST'):
-                    print(line.strip())
-    
+        
     # Load environment variables
     load_dotenv(env_path, override=True)  # Added override=True to force override existing env vars
     
-    ollama_base_url = os.getenv("OLLAMA_HOST")
-    print(f"Loaded OLLAMA_HOST from .env: {ollama_base_url}")
+    ollama_base_url = os.getenv("OLLAMA_BASE_URL")
+    print(f"Loaded OLLAMA_BASE_URL from .env: {ollama_base_url}")
     
     # Also print all environment variables containing 'OLLAMA'
     print("\nAll OLLAMA-related environment variables:")
@@ -141,7 +137,7 @@ if __name__ == "__main__":
     
     if not ollama_base_url:
         print("Missing environment variables:")
-        print(f"OLLAMA_HOST: {'set' if ollama_base_url else 'missing'}")
+        print(f"OLLAMA_BASE_URL: {'set' if ollama_base_url else 'missing'}")
         raise ValueError("Missing required environment variables. Please check your .env file.")
     
     # Run ingestion with Chroma

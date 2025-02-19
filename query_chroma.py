@@ -15,8 +15,12 @@ def test_chroma_ingestion(ollama_base_url: str, test_query: str):
     collection = client.get_collection(name=collection_name)
     
     # Initialize the same embeddings model used in ingestion
+    model = os.getenv("OLLAMA_EMBED_MODEL")
+    if not model:
+        raise ValueError("OLLAMA_EMBED_MODEL environment variable is not set")
+    
     embeddings = OllamaEmbeddings(
-        model="nomic-embed-text",
+        model=model,
         base_url=ollama_base_url
     )
     
@@ -50,9 +54,9 @@ if __name__ == "__main__":
     # Load environment variables
     load_dotenv()
     
-    ollama_base_url = os.getenv("OLLAMA_HOST")
+    ollama_base_url = os.getenv("OLLAMA_BASE_URL")
     if not ollama_base_url:
-        raise ValueError("OLLAMA_HOST environment variable is not set")
+        raise ValueError("OLLAMA_BASE_URL environment variable is not set")
     
     # Get query from command line argument, or use default
     test_query = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else "What are the parking rules?"
