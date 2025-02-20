@@ -10,9 +10,44 @@ import { Document } from '@langchain/core/documents';
 import { PromptTemplate } from "@langchain/core/prompts";
 import { OllamaEmbeddings } from '@langchain/community/embeddings/ollama';
 import { OllamaEmbeddingWrapper } from './ollamaEmbeddingWrapper';
-// import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'node:url';
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Add this before dotenv.config()
+const envVarsToReset = [
+  'OLLAMA_BASE_URL',
+  'OLLAMA_MODEL',
+  'OLLAMA_EMBED_MODEL',
+  'CHROMA_HOST',
+  'CHROMA_COLLECTION',
+  'ELEVEN_LABS_API_KEY',
+  'ELEVEN_LABS_VOICE_ID'
+];
+
+envVarsToReset.forEach(variable => {
+  if (process.env[variable]) {
+    console.log(`Clearing existing ${variable}`);
+    delete process.env[variable];
+  }
+});
+
+// Add after path resolution but before dotenv.config()
+try {
+  const envPath = path.resolve(__dirname, '../.env');
+  console.log('Loading .env from:', envPath);
+  
+  // const envContents = await fs.readFile(envPath, 'utf-8');
+  // console.log('.env file contents:\n', envContents);
+} catch (error) {
+  console.error('Error reading .env file:', error);
+  process.exit(1);
+}
+
+// Then load .env
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 // Add this logging block after dotenv.config()
 console.log('Environment Variables:');
@@ -27,6 +62,21 @@ console.log({
   ELEVEN_LABS_API_KEY: process.env.ELEVEN_LABS_API_KEY ? '****' : undefined,
   ELEVEN_LABS_VOICE_ID: process.env.ELEVEN_LABS_VOICE_ID
 });
+
+// Add this after the environment variables log
+async function verifyOllamaConnection() {
+  try {
+    const response = await fetch(`${process.env.OLLAMA_BASE_URL}/api/tags`);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    console.log('Ollama connection successful');
+  } catch (error) {
+    console.error('Ollama connection failed:', error);
+    process.exit(1);
+  }
+}
+
+// Add this before initializing the Ollama client
+await verifyOllamaConnection();
 
 const app = express();
 app.use(cors());

@@ -5,7 +5,15 @@ import chromadb
 from dotenv import load_dotenv
 
 def test_chroma_ingestion(ollama_base_url: str, test_query: str):
-    print(f"\nUsing Ollama server at: {ollama_base_url}")
+    # Print environment variables being used
+    print("\nEnvironment Variables:")
+    print(f"OLLAMA_BASE_URL: {ollama_base_url}")
+    print(f"OLLAMA_EMBED_MODEL: {os.getenv('OLLAMA_EMBED_MODEL')}")
+    print(f"CHROMA_COLLECTION: {os.getenv('CHROMA_COLLECTION')}")
+    print(f"CHROMA_HOST: {os.getenv('CHROMA_HOST', 'localhost')}")
+    print(f"CHROMA_PORT: {os.getenv('CHROMA_PORT', '8000')}\n")
+
+    print(f"Using Ollama server at: {ollama_base_url}")
     
     # Get Chroma server details from environment
     chroma_host = os.getenv("CHROMA_HOST", "localhost")

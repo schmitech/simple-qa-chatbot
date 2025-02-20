@@ -22,7 +22,16 @@ def ingest_to_chroma(
     collection_name = os.getenv("CHROMA_COLLECTION")
     if not collection_name:
         raise ValueError("CHROMA_COLLECTION environment variable is not set. Please check your .env file.")
-    collection = client.get_or_create_collection(name=collection_name)
+    
+    # Delete existing collection if it exists
+    existing_collections = client.list_collections()
+    if collection_name in existing_collections:
+        client.delete_collection(collection_name)
+        print(f"Deleted existing collection: {collection_name}")
+    
+    # Create new collection
+    collection = client.create_collection(name=collection_name)
+    print(f"Created new collection: {collection_name}")
     
     # Initialize Ollama embeddings
     model = os.getenv("OLLAMA_EMBED_MODEL")
