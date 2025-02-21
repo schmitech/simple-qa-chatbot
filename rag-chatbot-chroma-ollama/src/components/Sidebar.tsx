@@ -23,7 +23,7 @@ export const Sidebar: React.FC = () => {
         <div className="space-y-2">
           <div className="flex items-center gap-3 text-gray-600">
             <Languages size={20} className="shrink-0" />
-            <span className="text-base font-medium text-gray-900">Language</span>
+            <span className="text-base font-medium text-gray-900">Mic Language</span>
           </div>
           <select
             value={language}

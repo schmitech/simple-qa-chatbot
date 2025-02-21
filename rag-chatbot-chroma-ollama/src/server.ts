@@ -143,7 +143,7 @@ Follow these rules:
 const chain = RunnableSequence.from([
   async (input: { query: string }) => {
     const docs = await retriever.getRelevantDocuments(input.query);
-    console.log(`Retrieved ${docs.length} relevant documents`);
+    // console.log(`Retrieved ${docs.length} relevant documents`);
     return {
       context: formatDocuments(docs),
       question: input.query,
