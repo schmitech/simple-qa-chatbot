@@ -7,8 +7,19 @@ interface ChatMessageProps {
 }
 
 const linkify = (text: string) => {
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
-  return text.replace(urlRegex, (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">${url}</a>`);
+  // Match markdown links and plain URLs separately
+  const markdownLinkRegex = /\[.*?\]\((https?:\/\/[^\s)]+)\)/g;
+  const plainUrlRegex = /(https?:\/\/[^\s]+)/g;
+  
+  // First process markdown links to extract URLs
+  const withUrls = text.replace(markdownLinkRegex, (match, url) => {
+    return `${url}`; // Replace markdown link with just the URL
+  });
+  
+  // Then make remaining URLs clickable
+  return withUrls.replace(plainUrlRegex, (url) => {
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">${url}</a>`;
+  });
 };
 
 export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {

@@ -97,7 +97,30 @@ const llm = new Ollama({
   numCtx: 2048,
   numPredict: 150,
   numThread: 8,
-});
+  // Add verbose mode and custom fetch for logging
+  verbose: true,
+  fetch: async (input: RequestInfo, init?: RequestInit) => {
+    const url = typeof input === 'string' ? input : input.url;
+    console.log('\n--- Ollama API Call ---');
+    console.log('Endpoint:', url.replace(process.env.OLLAMA_BASE_URL!, ''));
+    
+    if (init?.body) {
+      const body = JSON.parse(init.body.toString());
+      console.log('Payload:', {
+        model: body.model,
+        prompt: body.prompt?.substring(0, 50) + '...', // Show first 50 chars of prompt
+        options: body.options
+      });
+    }
+    
+    const start = Date.now();
+    const response = await fetch(input, init);
+    console.log(`Duration: ${Date.now() - start}ms`);
+    console.log('Status:', response.status);
+    
+    return response;
+  }
+} as any);
 
 // Initialize Ollama embeddings instead of OpenAI
 const embeddings = new OllamaEmbeddings({
@@ -131,35 +154,18 @@ const formatDocuments = (docs: Document[]): string => {
   return docs.map(doc => doc.pageContent).join('\n\n');
 };
 
-// Add this after the formatDocuments function
-const systemMessage = `You are the City of Ottawa's official AI assistant. Your primary role is to help residents with municipal services information.
-
-Follow these rules:
-1. For service-related questions, ALWAYS use the provided context
-2. Answer concisely using only verified information
-3. Never add extra commentary or examples`;
-
 // Create a chain that combines retrieval and generation
 const chain = RunnableSequence.from([
   async (input: { query: string }) => {
     const docs = await retriever.getRelevantDocuments(input.query);
-    // console.log(`Retrieved ${docs.length} relevant documents`);
     return {
       context: formatDocuments(docs),
       question: input.query,
     };
   },
-  PromptTemplate.fromTemplate(`SYSTEM: ${systemMessage}
-
-CONTEXT: {context}
+  PromptTemplate.fromTemplate(`CONTEXT: {context}
 
 USER QUESTION: {question}
-
-RESPONSE RULES:
-- Use ONLY the provided context
-- Answer in 1-2 sentences
-- No markdown formatting
-- If no context matches, say "I don't have that information"
 
 ANSWER:
 `),
