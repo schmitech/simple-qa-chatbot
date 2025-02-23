@@ -54,36 +54,28 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-1. Create a `.env` file for ingestion scripts (copy from .env.example):
-```env
-CHROMA_PERSIST_DIRECTORY="./chroma_db"
-OLLAMA_BASE_URL="http://localhost:11434"
-OLLAMA_TEMPERATURE=0.7
-OLLAMA_MODEL="qa-chatbot"
-CHROMA_COLLECTION="qa-chatbot"
-```
+1. Create a `config.yaml` file for ingestion scripts (copy from config.yaml.example):
 
-## Deploy Ollama Model
+
+2. Download Ollama Model:
 
 ```bash
-./deploy-model.sh
+ollama pull llama3.2:3b
 ```
 
-## Data Ingestion
-
-1. Ingest data into Pinecone (requires .env configuration):
+3 Ingest data into ChromaDB (requires .env configuration):
 ```bash
-python chroma-data-ingestion.py qa_pairs.json
+python ./chroma-utils/create_chroma_collection.py qa_pairs.json
 ```
 
-2. Start the ChromaDB server:
+4. Start the ChromaDB server:
 ```bash
 chroma run --host localhost --port 8000 --path ./chroma_db
 ```
 
-3. Test Query
+5. Test Query
 ```bash
-python query_chroma.py "How much is the property tax for a house?"
+python ./chroma-utils/query_chroma_collection.py "How much is the property tax for a house?"
 ```
 
 ## Running the Streamlit Chat Interface:
@@ -96,30 +88,11 @@ streamlit run chatbot_app_chroma.py
 ## Running the React/Vite Interface:
 
 ```bash
-cd rag-chatbot-chroma-ollama
+cd chatbot-app
 npm install
 npm run server -- ollama # or hf (huggingface)
 npm run dev
 ```
-
-## Configuration
-
-1. Adjust  `.streamlit/secrets.toml` to your needs:
-```toml
-PAGE_TITLE = "Q/A Assistant"
-OLLAMA_BASE_URL = "http://localhost:11434"
-OLLAMA_TEMPERATURE = 0.1
-OLLAMA_MODEL = "qa-chatbot"
-CHROMA_PERSIST_DIRECTORY = "./chroma_db"
-CHROMA_COLLECTION = "qa-chatbot"
-ELEVEN_LABS_API_KEY = "your-elevenlabs-api-key" # Only needed for text-to-speech support
-ELEVEN_LABS_VOICE_ID = "your-elevenlabs-voice-id" # Only needed for text-to-speech support
-```
-
-## Key Components
-- `chroma-data-ingestion.py`: Handles vector embedding and storage
-- `chatbot_app_chroma.py`: Web interface for seamless interactions
-- `qa_pairs.json`: Sample dataset of Q/A pairs
 
 ## Limitations
 

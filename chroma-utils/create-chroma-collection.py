@@ -1,16 +1,22 @@
 import os
 import json
+import yaml
 from langchain_ollama import OllamaEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from tqdm import tqdm
 import chromadb
-from dotenv import load_dotenv
 import argparse
+
+def load_config():
+    with open('config.yaml', 'r') as file:
+        return yaml.safe_load(file)
 
 def ingest_to_chroma(
     json_file_path: str,
     ollama_base_url: str,
-    persist_directory: str = os.getenv("CHROMA_PERSIST_DIRECTORY"),
+    persist_directory: str,
+    collection_name: str,
+    model: str,
     batch_size: int = 50
 ):
     print(f"Function received ollama_base_url: {ollama_base_url}")
@@ -19,9 +25,8 @@ def ingest_to_chroma(
     client = chromadb.PersistentClient(path=persist_directory)
     
     # Create or get collection
-    collection_name = os.getenv("CHROMA_COLLECTION")
     if not collection_name:
-        raise ValueError("CHROMA_COLLECTION environment variable is not set. Please check your .env file.")
+        raise ValueError("CHROMA_COLLECTION is not set in the configuration file.")
     
     # Delete existing collection if it exists
     existing_collections = client.list_collections()
@@ -34,9 +39,8 @@ def ingest_to_chroma(
     print(f"Created new collection: {collection_name}")
     
     # Initialize Ollama embeddings
-    model = os.getenv("OLLAMA_EMBED_MODEL")
     if not model:
-        raise ValueError("OLLAMA_EMBED_MODEL environment variable is not set. Please check your .env file.")
+        raise ValueError("OLLAMA_EMBED_MODEL is not set in the configuration file.")
     
     embeddings = OllamaEmbeddings(
         model=model,
@@ -114,40 +118,22 @@ def ingest_to_chroma(
     print(f"Total vectors in collection: {collection.count()}")
 
 if __name__ == "__main__":
+    config = load_config()  # Load the config
+
     # Set up argument parser
     parser = argparse.ArgumentParser(description='Ingest Q&A pairs into Chroma database')
     parser.add_argument('json_file_path', help='Path to the JSON file containing Q&A pairs')
     args = parser.parse_args()
-
-    # Debug: Print the .env file path and contents
-    env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
-    print(f"Looking for .env file at: {env_path}")
-    print(f"Does .env file exist? {os.path.exists(env_path)}")
-        
-    # Load environment variables
-    load_dotenv(env_path, override=True)  # Added override=True to force override existing env vars
-    
-    ollama_base_url = os.getenv("OLLAMA_BASE_URL")
-    print(f"Loaded OLLAMA_BASE_URL from .env: {ollama_base_url}")
-    
-    # Also print all environment variables containing 'OLLAMA'
-    print("\nAll OLLAMA-related environment variables:")
-    for key, value in os.environ.items():
-        if 'OLLAMA' in key:
-            print(f"{key}: {value}")
     
     # Updated configuration
     CONFIG = {
-        "ollama_base_url": ollama_base_url,
+        "ollama_base_url": config['ollama']['base_url'],
         "json_file_path": args.json_file_path,
         "batch_size": 50,
-        "persist_directory": os.getenv("CHROMA_PERSIST_DIRECTORY")
+        "persist_directory": config['chroma']['persist_directory'],
+        "collection_name": config['chroma']['collection'],
+        "model": config['ollama']['embed_model']
     }
-    
-    if not ollama_base_url:
-        print("Missing environment variables:")
-        print(f"OLLAMA_BASE_URL: {'set' if ollama_base_url else 'missing'}")
-        raise ValueError("Missing required environment variables. Please check your .env file.")
     
     # Run ingestion with Chroma
     ingest_to_chroma(**CONFIG)

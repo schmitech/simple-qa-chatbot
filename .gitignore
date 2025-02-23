@@ -172,4 +172,4 @@ cython_debug/
 chroma_db/
 .env
 *.cpy
-.streamlit/secrets.toml
+config.yaml

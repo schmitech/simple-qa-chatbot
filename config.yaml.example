@@ -1,0 +1,32 @@
+ollama:
+  base_url: "http://localhost:11434"
+  temperature: 0.1
+  top_p: 0.9
+  top_k: 50
+  repeat_penalty: 1.0
+  num_predict: 1024
+  num_ctx: 2048
+  num_threads: 8
+  model: "llama3.2:3b"
+  embed_model: "mxbai-embed-large"
+
+huggingface:
+  api_key: "your-huggingface-api-key"
+  model: "deepset/roberta-base-squad2"
+
+chroma:
+  host: "localhost"
+  port: 8000
+  collection: "qa-chatbot"
+  persist_directory: "./chroma_db"
+
+eleven_labs:
+  api_key: "your-elevenlabs-api-key"
+  voice_id: "your-elevenlabs-voice-id"
+
+system:
+  template_path: "./templates/qa.txt"
+
+general:
+  verbose: "false"
+  page_title: "QA Chatbot"
