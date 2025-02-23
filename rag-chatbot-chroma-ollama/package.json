@@ -8,9 +8,11 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "server": "tsx src/server.ts"
+    "server": "tsx src/server.ts",
+    "start": "tsx src/server.ts"
   },
   "dependencies": {
+    "@huggingface/inference": "^2.8.1",
     "@langchain/community": "^0.0.34",
     "@types/node": "^20.11.24",
     "chromadb": "^1.8.1",

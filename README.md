@@ -98,7 +98,7 @@ streamlit run chatbot_app_chroma.py
 ```bash
 cd rag-chatbot-chroma-ollama
 npm install
-npm run server
+npm run server -- ollama # or hf (huggingface)
 npm run dev
 ```
 
