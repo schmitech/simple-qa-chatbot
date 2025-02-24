@@ -55,6 +55,7 @@ def ingest_to_chroma(
         # Test embedding with a simple string
         test_embedding = embeddings.embed_query("test connection")
         print("Successfully connected to Ollama server")
+        print(f"Embedding dimensions: {len(test_embedding)}")  # Should print 1024 for mxbai-embed-large
     except Exception as e:
         print(f"Failed to connect to Ollama server at {ollama_base_url}")
         print(f"Error: {str(e)}")

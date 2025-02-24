@@ -12,7 +12,7 @@ const linkify = (text: string) => {
   const plainUrlRegex = /(https?:\/\/[^\s]+)/g;
   
   // First process markdown links to extract URLs
-  const withUrls = text.replace(markdownLinkRegex, (match, url) => {
+  const withUrls = text.replace(markdownLinkRegex, (_, url) => {
     return `${url}`; // Replace markdown link with just the URL
   });
   
