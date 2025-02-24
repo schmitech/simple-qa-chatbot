@@ -63,14 +63,14 @@ pip install -r requirements.txt
 ollama pull llama3.2:3b
 ```
 
-3 Ingest data into ChromaDB (requires .env configuration):
-```bash
-python ./chroma-utils/create_chroma_collection.py qa_pairs.json
-```
-
-4. Start the ChromaDB server:
+3. Start the ChromaDB server:
 ```bash
 chroma run --host localhost --port 8000 --path ./chroma_db
+```
+
+4. Ingest data into ChromaDB (requires .env configuration):
+```bash
+python ./chroma-utils/create_chroma_collection.py qa_pairs.json
 ```
 
 5. Test Query

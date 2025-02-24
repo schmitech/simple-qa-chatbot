@@ -14,15 +14,17 @@ def load_config():
 def ingest_to_chroma(
     json_file_path: str,
     ollama_base_url: str,
-    persist_directory: str,
+    chroma_host: str,
+    chroma_port: str,
     collection_name: str,
     model: str,
     batch_size: int = 50
 ):
     print(f"Function received ollama_base_url: {ollama_base_url}")
     
-    # Initialize Chroma client with new configuration
-    client = chromadb.PersistentClient(path=persist_directory)
+    # Initialize Chroma client with HTTP connection
+    client = chromadb.HttpClient(host=chroma_host, port=int(chroma_port))
+    print(f"Connected to Chroma server at {chroma_host}:{chroma_port}")
     
     # Create or get collection
     if not collection_name:
@@ -125,12 +127,13 @@ if __name__ == "__main__":
     parser.add_argument('json_file_path', help='Path to the JSON file containing Q&A pairs')
     args = parser.parse_args()
     
-    # Updated configuration
+    # Updated configuration with Chroma server details
     CONFIG = {
         "ollama_base_url": config['ollama']['base_url'],
         "json_file_path": args.json_file_path,
         "batch_size": 50,
-        "persist_directory": config['chroma']['persist_directory'],
+        "chroma_host": config['chroma']['host'],
+        "chroma_port": config['chroma']['port'],
         "collection_name": config['chroma']['collection'],
         "model": config['ollama']['embed_model']
     }

@@ -367,30 +367,30 @@ app.post('/chat', async (req, res) => {
         textBuffer += chunk;
         res.write(JSON.stringify({ type: 'text', content: chunk }) + '\n');
 
-        // Wait for first substantial chunk
-        if (voiceEnabled && isFirstChunk && textBuffer.length >= 100) {
+        // Start voice generation earlier with smaller first chunk
+        if (voiceEnabled && isFirstChunk && textBuffer.length >= 50) {  // Reduced from 100 to 50
           const currentText = textBuffer;
           textBuffer = '';
           isFirstChunk = false;
 
-          // Add delay before starting audio
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          // Reduced initial delay
+          await new Promise(resolve => setTimeout(resolve, 300));  // Reduced from 1000 to 300
           try {
             await generateAudioChunk(currentText, res);
           } catch (error) {
             console.error('First chunk audio generation failed:', error);
           }
         }
-        // For subsequent chunks, wait for complete sentences and add delay
+        // Process subsequent chunks more frequently
         else if (voiceEnabled && !isFirstChunk && (
-          (textBuffer.match(/[.!?]\s*$/) && textBuffer.length >= 50) ||
-          textBuffer.length >= 150
+          (textBuffer.match(/[.!?]\s*$/) && textBuffer.length >= 30) ||  // Reduced from 50 to 30
+          textBuffer.length >= 100  // Reduced from 150 to 100
         )) {
           const currentText = textBuffer;
           textBuffer = '';
 
-          // Add delay between chunks
-          await new Promise(resolve => setTimeout(resolve, 800));
+          // Reduced delay between chunks
+          await new Promise(resolve => setTimeout(resolve, 200));  // Reduced from 800 to 200
           try {
             await generateAudioChunk(currentText, res);
           } catch (error) {
@@ -400,9 +400,9 @@ app.post('/chat', async (req, res) => {
       }
     }
     
-    // Handle any remaining text
+    // Handle any remaining text with minimal delay
     if (voiceEnabled && textBuffer.trim()) {
-      await new Promise(resolve => setTimeout(resolve, 800));
+      await new Promise(resolve => setTimeout(resolve, 100));  // Reduced from 800 to 100
       try {
         await generateAudioChunk(textBuffer.trim(), res, true);
       } catch (error) {
@@ -434,10 +434,11 @@ async function generateAudioChunk(text: string, res: any, isFinal: boolean = fal
         text,
         model_id: 'eleven_multilingual_v1',
         voice_settings: {
-          stability: 0.7,              // Increased for more stable speech
-          similarity_boost: 0.8,       // Increased for better voice consistency
-          speaking_rate: 1.0,          // Normal speaking rate
-          style: 0.25,                 // Reduced for more natural delivery
+          stability: 0.5,              // Reduced for more natural variation
+          similarity_boost: 0.6,       // Reduced for more expressive speech
+          style: 0.35,                 // Increased for more casual style
+          speaking_rate: 1.1,          // Slightly faster for conversational feel
+          use_speaker_boost: true      // Enhanced clarity for voice calls
         },
       }),
     }
