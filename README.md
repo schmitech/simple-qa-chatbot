@@ -63,7 +63,7 @@ pip install -r requirements.txt
 ollama pull llama3.2:3b
 ```
 
-3. Start the ChromaDB server:
+3. Start the ChromaDB server ([chroma-service.md](chroma-service.md) has instructions for setting up a systemd service)
 ```bash
 chroma run --host localhost --port 8000 --path ./chroma_db
 ```
@@ -86,6 +86,8 @@ streamlit run chatbot_app_chroma.py
 ```
 
 ## Running the React/Vite Interface:
+
+You can use Ollama or Huggingface models with the React/Vite interface. Simply specify flag ollama or hf when running the server.
 
 ```bash
 cd chatbot-app
