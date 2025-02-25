@@ -8,7 +8,7 @@ ollama:
   num_ctx: 2048
   num_threads: 8
   model: "llama3.2:3b"
-  embed_model: "mxbai-embed-large"
+  embed_model: "nomic-embed-text"
 
 huggingface:
   api_key: "your-huggingface-api-key"
