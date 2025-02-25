@@ -40,6 +40,9 @@ def ingest_to_chroma(
     collection = client.create_collection(name=collection_name)
     print(f"Created new collection: {collection_name}")
     
+    # Print the embedding model being used
+    print(f"Using embedding model: {model}")
+    
     # Initialize Ollama embeddings
     if not model:
         raise ValueError("OLLAMA_EMBED_MODEL is not set in the configuration file.")
