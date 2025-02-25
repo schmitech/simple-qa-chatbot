@@ -1,25 +1,14 @@
 import React from 'react';
 import { Bot, User } from 'lucide-react';
 import { Message } from '../types';
+import { marked } from 'marked';
 
 interface ChatMessageProps {
   message: Message;
 }
 
-const linkify = (text: string) => {
-  // Match markdown links and plain URLs separately
-  const markdownLinkRegex = /\[.*?\]\((https?:\/\/[^\s)]+)\)/g;
-  const plainUrlRegex = /(https?:\/\/[^\s]+)/g;
-  
-  // First process markdown links to extract URLs
-  const withUrls = text.replace(markdownLinkRegex, (_, url) => {
-    return `${url}`; // Replace markdown link with just the URL
-  });
-  
-  // Then make remaining URLs clickable
-  return withUrls.replace(plainUrlRegex, (url) => {
-    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">${url}</a>`;
-  });
+const renderMarkdown = (text: string) => {
+  return marked(text);
 };
 
 export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
@@ -40,7 +29,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         </div>
         <div 
           className="text-gray-800 whitespace-pre-wrap"
-          dangerouslySetInnerHTML={{ __html: linkify(message.content) }}
+          dangerouslySetInnerHTML={{ __html: renderMarkdown(message.content) }}
         />
       </div>
     </div>
