@@ -70,12 +70,12 @@ chroma run --host localhost --port 8000 --path ./chroma_db
 
 4. Ingest data into ChromaDB (requires .env configuration):
 ```bash
-python ./chroma-utils/create_chroma_collection.py qa_pairs.json
+python ./chatbot-server/chroma-utils/create_chroma_collection.py qa_pairs.json
 ```
 
 5. Test Query
 ```bash
-python ./chroma-utils/query_chroma_collection.py "How much is the property tax for a house?"
+python ./chatbot-server/chroma-utils/query_chroma_collection.py "How much is the property tax for a house?"
 ```
 
 ## Running the Streamlit Chat Interface:
@@ -89,10 +89,17 @@ streamlit run chatbot_app_chroma.py
 
 You can use Ollama or Huggingface models with the React/Vite interface. Simply specify flag ollama or hf when running the server.
 
+1. Start the chatbot-server:
+```bash
+cd chatbot-server
+npm install
+npm run dev -- ollama # or hf (huggingface)
+```
+
+2. Start the React/Vite interface:
 ```bash
 cd chatbot-app
 npm install
-npm run server -- ollama # or hf (huggingface)
 npm run dev
 ```
 

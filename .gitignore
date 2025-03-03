@@ -173,3 +173,7 @@ chroma_db/
 .env
 *.cpy
 config.yaml
+
+
+# Node.js
+node_modules/

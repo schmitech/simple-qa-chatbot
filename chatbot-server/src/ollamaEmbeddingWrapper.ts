@@ -1,7 +1,7 @@
-import type { EmbeddingFunction } from 'chromadb';
+import type { IEmbeddingFunction } from 'chromadb';
 import { OllamaEmbeddings } from '@langchain/community/embeddings/ollama';
 
-export class OllamaEmbeddingWrapper implements EmbeddingFunction {
+export class OllamaEmbeddingWrapper implements IEmbeddingFunction {
   private embeddings: OllamaEmbeddings;
 
   constructor(embeddings: OllamaEmbeddings) {

@@ -1,47 +1,28 @@
-import { StreamResponse } from './types';
+import { ChatbotClient, StreamResponse } from 'chatbot-server';
 
-const API_URL = 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
+// Create a singleton instance of the ChatbotClient
+const chatbotClient = new ChatbotClient(API_URL);
+
+/**
+ * Streams chat responses from the server
+ * @param message The user's message
+ * @param voiceEnabled Whether to enable text-to-speech
+ */
 export async function* streamChat(
   message: string,
   voiceEnabled: boolean
 ): AsyncGenerator<StreamResponse> {
-  const response = await fetch(`${API_URL}/chat`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ message, voiceEnabled }),
-  });
-
-  if (!response.ok) {
-    throw new Error('Network response was not ok');
-  }
-
-  const reader = response.body?.getReader();
-  if (!reader) throw new Error('No reader available');
-
-  const decoder = new TextDecoder();
-  let buffer = '';
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split('\n');
-    buffer = lines.pop() || '';
-
-    for (const line of lines) {
-      if (line.trim()) {
-        const data = JSON.parse(line);
-        yield data;
-      }
+  try {
+    // Use the client's streamChat method
+    for await (const response of chatbotClient.streamChat({ message, voiceEnabled })) {
+      yield response;
     }
-  }
-
-  if (buffer) {
-    const data = JSON.parse(buffer);
-    yield data;
+  } catch (error) {
+    console.error('Error streaming chat:', error);
+    throw error;
   }
 }
+
+export type { StreamResponse };

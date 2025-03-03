@@ -1,12 +1,15 @@
 import { BaseRetriever } from "@langchain/core/retrievers";
-import { Document } from 'langchain/document';
-import { Collection, EmbeddingFunction } from 'chromadb';
+import { Document } from "@langchain/core/documents";
+import { Collection, IEmbeddingFunction } from 'chromadb';
 
 export class ChromaRetriever extends BaseRetriever {
+  // Important: This needs to be on the instance, not static!
+  lc_namespace = ['langchain', 'retrievers', 'chroma'];
+  
   private collection: Collection;
-  private embeddings: EmbeddingFunction;
+  private embeddings: IEmbeddingFunction;
 
-  constructor(collection: Collection, embeddings: EmbeddingFunction) {
+  constructor(collection: Collection, embeddings: IEmbeddingFunction) {
     super();
     this.collection = collection;
     this.embeddings = embeddings;
@@ -18,17 +21,21 @@ export class ChromaRetriever extends BaseRetriever {
     const results = await this.collection.query({
       queryEmbeddings: queryEmbedding,
       nResults: 3,
-      include: ['metadatas', 'documents', 'distances'],
+      include: [
+        "metadatas",
+        "documents",
+        "distances"
+      ] as any, // Type assertion to bypass type checking
     });
 
     const documents: Document[] = [];
     
     if (results.metadatas && results.metadatas[0]) {
       for (const metadata of results.metadatas[0]) {
-        if (metadata.text) {
+        if (metadata && metadata.text) {
           documents.push(new Document({
-            pageContent: metadata.text,
-            metadata
+            pageContent: String(metadata.text),
+            metadata: metadata || {}
           }));
         }
       }

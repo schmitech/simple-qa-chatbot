@@ -148,7 +148,7 @@ const llm = new Ollama({
 // Initialize Ollama embeddings instead of OpenAI
 const embeddings = new OllamaEmbeddings({
   baseUrl: process.env.OLLAMA_BASE_URL,
-  model: process.env.OLLAMA_EMBED_MODEL || 'mxbai-embed-large',
+  model: process.env.OLLAMA_EMBED_MODEL || 'bge-m3',
 });
 
 // Create the wrapper instance
